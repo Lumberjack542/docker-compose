@@ -1,4 +1,4 @@
-version : "3"
+version : " 2.5.0"
 
 
 services:
@@ -11,4 +11,44 @@ services:
       - ./src:/src
     ports:
       - "8000:8000"
-    command: python3 manage.py runserver 0.0.0.0:8000
+    command: sh -c "python3 manage.py migrate & python3 manage.py runserver 0.0.0.0:8000"
+    env_file:
+      - db_keys.txt 
+    depends_on:
+      - db 
+      - cache 
+    # environment:
+      # - POSTGRES_PASSWORD=useruser
+      # - POSTGRES_USER=Igor
+      # - POSTGRES_DB=Nikolaev_db
+      
+
+
+  db:
+    image: postgres:latest
+    container_name: my_db
+    restart: always
+  
+    ports:
+      - "5432:5432"
+    env_file:
+      - db_keys.txt 
+    
+       
+    # environment:
+    #   - POSTGRES_PASSWORD=useruser
+    #   - POSTGRES_USER=Igor
+    #   - POSTGRES_DB=Nikolaev_db
+
+
+  adminer:
+    image: adminer:latest
+    container_name: adminer    
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db 
+  
+  cache:
+    image: redis:latest
+    container_name: my_cache
